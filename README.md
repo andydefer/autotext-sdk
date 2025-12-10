@@ -107,16 +107,4 @@ $response = $firebaseService->sendSmsToDevice($deviceDto->fcmId, $texto);
 ## Licence
 
 MIT
-
-```
-
-Ce README couvre :
-
-- Installation Composer
-- Configuration Firebase JSON
-- Utilisation des DTOs (`TextoDto`, `AutoTextDeviceDto`)
-- Service principal `DeviceSmsDispatcher`
-- Enumérations
-- Guide de contribution
-
 ---

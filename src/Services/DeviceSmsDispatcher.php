@@ -2,23 +2,20 @@
 
 namespace Andydefer\AutotextSdk\Services;
 
-use Andydefer\AutotextSdk\Dtos\AutoTextDeviceDto;
 use Andydefer\AutotextSdk\Dtos\TextoDto;
+use Andydefer\AutotextSdk\Dtos\AutoTextDeviceDto;
 use Andydefer\AutotextSdk\Enums\AutoTextDeviceStatus;
-use Andydefer\AutotextSdk\Services\FirebaseService;
+use Andydefer\AutotextSdk\Contracts\SmsSenderInterface;
 
 class DeviceSmsDispatcher
 {
-    protected FirebaseService $firebaseService;
+    protected SmsSenderInterface $sender; // <-- interface, pas FirebaseService
 
-    public function __construct(FirebaseService $firebaseService)
+    public function __construct(SmsSenderInterface $sender)
     {
-        $this->firebaseService = $firebaseService;
+        $this->sender = $sender;
     }
 
-    /**
-     * Dispatch a TextoDto to a single online device.
-     */
     public function dispatch(TextoDto $texto, AutoTextDeviceDto $device): bool
     {
         if ($device->status !== AutoTextDeviceStatus::ONLINE) {
@@ -29,10 +26,6 @@ class DeviceSmsDispatcher
             throw new \InvalidArgumentException("Device {$device->id} has no FCM ID.");
         }
 
-        // Envoi via Firebase au device
-        $response = $this->firebaseService->sendSmsToDevice($device->fcmId, $texto);
-
-        // Optionnel : retourner true si succès, false sinon
-        return $response['success'] ?? false;
+        return $this->sender->send($texto, $device->fcmId); // interface
     }
 }
