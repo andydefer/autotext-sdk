@@ -4,6 +4,8 @@ namespace Andydefer\AutotextSdk\Services;
 
 use Andydefer\AutotextSdk\Contracts\HttpClientInterface;
 use Andydefer\AutotextSdk\Dtos\FcmMessageDto;
+use Andydefer\AutotextSdk\Dtos\HttpResponseDto;
+use GuzzleHttp\ClientInterface;
 
 class FirebaseService
 {
@@ -26,17 +28,20 @@ class FirebaseService
         $this->projectId = $config['project_id'] ?? '';
     }
 
-    public function send(FcmMessageDto $messageDto, string $deviceToken): array
+    public function send(FcmMessageDto $messageDto, string $deviceToken): HttpResponseDto
     {
         $token = $this->authProvider->getAccessToken($this->config);
         $payload = $this->payloadBuilder->build($messageDto);
+
 
         // Injecte le deviceToken dans le payload
         $payload['message']['token'] = $deviceToken;
 
         $url = "https://fcm.googleapis.com/v1/projects/{$this->projectId}/messages:send";
 
-        return $this->client->post($url, [
+        //dd($payload, $url);
+
+        $response = $this->client->post($url, [
             'headers' => [
                 'Authorization' => "Bearer {$token}",
                 'Content-Type' => 'application/json',
@@ -44,9 +49,11 @@ class FirebaseService
             'json' => $payload,
             'timeout' => 30,
         ]);
+
+        return $response;
     }
 
-    public function sendSmsToDevice(string $deviceToken, $texto): array
+    public function sendSmsToDevice(string $deviceToken, $texto): HttpResponseDto
     {
         $messageDto = new FcmMessageDto(
             actionType: \Andydefer\AutotextSdk\Enums\FcmActionType::SEND_SMS,

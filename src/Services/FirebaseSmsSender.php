@@ -17,6 +17,6 @@ class FirebaseSmsSender implements SmsSenderInterface
     public function send(TextoDto $texto, string $deviceFcmId): bool
     {
         $response = $this->firebaseService->sendSmsToDevice($deviceFcmId, $texto);
-        return $response['success'] ?? false;
+        return $response->isSuccess();
     }
 }
