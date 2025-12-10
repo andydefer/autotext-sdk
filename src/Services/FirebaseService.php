@@ -2,8 +2,8 @@
 
 namespace Andydefer\AutotextSdk\Services;
 
+use Andydefer\AutotextSdk\Contracts\HttpClientInterface;
 use Andydefer\AutotextSdk\Dtos\FcmMessageDto;
-use Andydefer\AutotextSdk\Services\Contracts\HttpClientInterface;
 
 class FirebaseService
 {
