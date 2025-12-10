@@ -1,0 +1,1 @@
+{"version":2,"defects":[],"times":{"Tests\\Unit\\AutoTextDeviceDtoTest::testAutoTextDeviceDtoCanBeCreated":0.002,"Tests\\Unit\\DeviceSmsDispatcherTest::testDispatchSmsCallsFirebaseService":0.005,"Tests\\Unit\\TextoDtoTest::testTextoDtoCanBeCreated":0}}
