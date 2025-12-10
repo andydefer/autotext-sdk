@@ -1,110 +1,299 @@
-# AndyDefer Autotext SDK
+# AutoText SDK PHP
 
-Un SDK PHP pour gérer l'envoi automatisé de SMS via des devices connectés et Firebase Cloud Messaging (FCM).
-Le package est **framework-agnostic**, mais peut être utilisé facilement avec Laravel.
+Une bibliothèque PHP agnostique pour envoyer des SMS via Firebase Cloud Messaging (FCM) vers des appareils Android.
 
----
+## 📋 Table des matières
 
-## Installation
+- [Fonctionnalités](#fonctionnalités)
+- [Prérequis](#prérequis)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Utilisation](#utilisation)
+- [API](#api)
+- [Développement](#développement)
+- [Licence](#licence)
 
-Installez le package via Composer :
+## ✨ Fonctionnalités
+
+- ✅ Envoi de SMS via FCM vers des appareils Android
+- ✅ Architecture orientée DTO (Data Transfer Objects)
+- ✅ Gestion d'authentification Firebase
+- ✅ Interface HTTP interchangeable (Guzzle par défaut)
+- ✅ Factory pour une instanciation simplifiée
+- ✅ Support des statuts d'appareils et de textos
+- ✅ Enums type-safe pour tous les états
+- ✅ Compatible PHP 8.1+
+
+## 📦 Prérequis
+
+- PHP 8.1 ou supérieur
+- Composer
+- Compte Firebase avec projet configuré
+- Fichier de configuration Firebase (service account key)
+
+## 🔧 Installation
 
 ```bash
 composer require andydefer/autotext-sdk
-````
-
----
-
-## Configuration Firebase
-
-Créez un fichier JSON de configuration Firebase (obtenu depuis Firebase Console) et chargez-le en PHP :
-
-```php
-$config = json_decode(file_get_contents('/chemin/vers/fcm.json'), true);
-$firebaseService = new \Andydefer\AutotextSdk\Services\FirebaseService($config);
 ```
 
-Le tableau `$config` doit contenir :
+## ⚙️ Configuration
 
-* `project_id`
-* `client_email`
-* `private_key`
-* `token_uri`
+### 1. Configuration Firebase
 
----
+Créez un fichier de configuration Firebase :
 
-## DTOs disponibles
+```php
+$firebaseConfig = [
+    'project_id' => 'votre-project-id',
+    'client_email' => 'votre-client-email@project.iam.gserviceaccount.com',
+    'private_key' => '-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n',
+    'token_uri' => 'https://oauth2.googleapis.com/token',
+];
+```
 
-Le package utilise des **Data Transfer Objects (DTO)** pour rester indépendant du framework :
+### 2. Configuration du SDK
 
-* **TextoDto** : représente un SMS.
-* **AutoTextDeviceDto** : représente un device connecté.
+```php
+use Andydefer\AutotextSdk\Core\NotificationFactory;
+use Andydefer\AutotextSdk\Services\GuzzleHttpClient;
+use Andydefer\AutotextSdk\Services\FirebaseAuthProvider;
+use Andydefer\AutotextSdk\Services\FcmPayloadBuilder;
 
-Exemple :
+// Initialiser les dépendances
+$httpClient = new GuzzleHttpClient();
+$authProvider = new FirebaseAuthProvider();
+$payloadBuilder = new FcmPayloadBuilder();
+
+// Créer la factory
+$factory = new NotificationFactory(
+    httpClient: $httpClient,
+    authProvider: $authProvider,
+    payloadBuilder: $payloadBuilder,
+    config: $firebaseConfig
+);
+```
+
+## 🚀 Utilisation
+
+### Envoyer un SMS
 
 ```php
 use Andydefer\AutotextSdk\Dtos\TextoDto;
+use Andydefer\AutotextSdk\Dtos\AutoTextDeviceDto;
 use Andydefer\AutotextSdk\Enums\TextoStatus;
+use Andydefer\AutotextSdk\Enums\AutoTextDeviceStatus;
 
+// 1. Créer un DTO pour le texto
 $texto = new TextoDto(
-    id: 1,
-    uuid: 'uuid-example',
-    message: 'Bonjour',
-    phoneNumber: '+33000000000',
+    id: 123,
+    uuid: '550e8400-e29b-41d4-a716-446655440000',
+    message: 'Bonjour, ceci est un test',
+    phoneNumber: '+33612345678',
     status: TextoStatus::PENDING,
     deviceId: 1,
     retryCount: 0,
     lastAttemptAt: null,
-    createdAt: date('c'),
-    updatedAt: date('c')
+    createdAt: '2025-12-10T13:45:30+00:00',
+    updatedAt: '2025-12-10T13:45:30+00:00'
 );
+
+// 2. Créer un DTO pour l'appareil
+$device = AutoTextDeviceDto::fromArray([
+    'id' => 'device-uuid-123',
+    'api_key' => 'api-key-123',
+    'status' => AutoTextDeviceStatus::ONLINE->value,
+    'fcm_id' => 'fcm-token-abc123',
+    'last_connected_at' => '2025-12-10T13:45:30+00:00',
+    'last_action_at' => '2025-12-10T13:45:30+00:00',
+    'created_at' => '2025-12-10T13:45:30+00:00',
+    'updated_at' => '2025-12-10T13:45:30+00:00',
+    'is_recently_connected' => true,
+    'is_recently_active' => true,
+    'success_count' => 100,
+    'failed_count' => 5,
+    'success_rate' => 95,
+]);
+
+// 3. Récupérer le dispatcher depuis la factory
+$dispatcher = $factory->makeDispatcher();
+
+// 4. Envoyer le SMS
+try {
+    $result = $dispatcher->dispatch($texto, $device);
+
+    if ($result) {
+        echo "SMS envoyé avec succès !";
+    } else {
+        echo "Échec de l'envoi du SMS";
+    }
+} catch (\InvalidArgumentException $e) {
+    echo "Erreur: " . $e->getMessage();
+}
 ```
 
----
-
-## Services principaux
-
-### DeviceSmsDispatcher
-
-Envoie un SMS à un device spécifique, qui se chargera de le dispatcher :
+### Utilisation directe des services
 
 ```php
-use Andydefer\AutotextSdk\Services\DeviceSmsDispatcher;
+// Récupérer le service Firebase
+$firebaseService = $factory->makeFirebaseService();
 
-$dispatcher = new DeviceSmsDispatcher($firebaseService);
+// Récupérer le sender SMS
+$smsSender = $factory->makeSmsSender();
 
-$dispatcher->dispatch($texto, $deviceDto); // $deviceDto doit être en ligne
+// Envoyer directement via le sender
+$success = $smsSender->send($texto, $device->fcmId);
 ```
 
-### FirebaseService
+## 📚 API
 
-Service pour envoyer des messages FCM aux devices :
+### DTOs disponibles
 
-```php
-$response = $firebaseService->sendSmsToDevice($deviceDto->fcmId, $texto);
+#### `TextoDto`
+Représente un texto à envoyer.
+
+**Propriétés:**
+- `id` (int): ID unique
+- `uuid` (string): UUID unique
+- `message` (string): Contenu du SMS
+- `phoneNumber` (string): Numéro de téléphone
+- `status` (TextoStatus): Statut du texto
+- `deviceId` (int): ID de l'appareil
+- `retryCount` (int): Nombre de tentatives
+- `lastAttemptAt` (string|null): Dernière tentative (ISO8601)
+- `createdAt` (string): Date de création (ISO8601)
+- `updatedAt` (string): Date de modification (ISO8601)
+
+**Méthodes:**
+- `fromArray(array $data): self` - Crée un DTO depuis un tableau
+- `toArray(): array` - Convertit en tableau
+
+#### `AutoTextDeviceDto`
+Représente un appareil Android.
+
+**Propriétés:**
+- `id` (string): UUID de l'appareil
+- `apiKey` (string): Clé API
+- `status` (AutoTextDeviceStatus): Statut de l'appareil
+- `fcmId` (string|null): Token FCM
+- `lastConnectedAt` (string|null): Dernière connexion (ISO8601)
+- `lastActionAt` (string|null): Dernière action (ISO8601)
+- `createdAt` (string): Date de création (ISO8601)
+- `updatedAt` (string): Date de modification (ISO8601)
+- Métriques supplémentaires: `isRecentlyConnected`, `isRecentlyActive`, etc.
+
+#### `FcmMessageDto`
+Représente un message FCM.
+
+**Propriétés:**
+- `actionType` (FcmActionType): Type d'action
+- `message` (string): Contenu du message
+- `phoneNumber` (string|null): Numéro pour SMS
+- `smsId` (string|null): ID du SMS
+- `timestamp` (string): Horodatage (ISO8601)
+
+### Enums
+
+#### `AutoTextDeviceStatus`
+- `ONLINE` - Appareil en ligne
+- `OFFLINE` - Appareil hors ligne
+- `ERROR` - Appareil en erreur
+
+#### `TextoStatus`
+- `PENDING` - SMS en attente
+- `SUCCESS` - SMS envoyé avec succès
+- `FAILED` - Échec d'envoi
+
+#### `FcmActionType`
+- `SEND_SMS` - Envoyer un SMS
+- `INFO` - Message informatif
+- `PING` - Ping de disponibilité
+- `CONFIRM_SMS` - Confirmation d'envoi
+
+### Services principaux
+
+#### `NotificationFactory`
+Factory centrale pour créer tous les services.
+
+**Méthodes:**
+- `makeFirebaseService(): FirebaseService`
+- `makeSmsSender(): SmsSenderInterface`
+- `makeDispatcher(): DeviceSmsDispatcher`
+
+#### `DeviceSmsDispatcher`
+Dispatch les SMS vers les appareils appropriés.
+
+**Méthodes:**
+- `dispatch(TextoDto $texto, AutoTextDeviceDto $device): bool`
+
+#### `FirebaseService`
+Service Firebase pour l'envoi via FCM.
+
+**Méthodes:**
+- `send(FcmMessageDto $message, string $deviceToken): HttpResponseDto`
+- `sendSmsToDevice(string $deviceToken, TextoDto $texto): HttpResponseDto`
+
+## 🔧 Développement
+
+### Structure du projet
+
+```
+src/
+├── Contracts/              # Interfaces
+│   ├── HttpClientInterface.php
+│   └── SmsSenderInterface.php
+├── Core/                   # Classes centrales
+│   └── NotificationFactory.php
+├── Dtos/                   # Data Transfer Objects
+│   ├── TextoDto.php
+│   ├── HttpResponseDto.php
+│   ├── FcmMessageDto.php
+│   └── AutoTextDeviceDto.php
+├── Enums/                  # Énumérations
+│   ├── AutoTextDeviceStatus.php
+│   ├── FcmActionType.php
+│   └── TextoStatus.php
+└── Services/              # Services implémentés
+    ├── GuzzleHttpClient.php
+    ├── FirebaseService.php
+    ├── FcmPayloadBuilder.php
+    ├── DeviceSmsDispatcher.php
+    ├── FirebaseSmsSender.php
+    └── FirebaseAuthProvider.php
 ```
 
+### Tests
+
+```bash
+# À venir
+composer test
+```
+
+### Contribution
+
+1. Fork le projet
+2. Créer une branche feature (`git checkout -b feature/ma-feature`)
+3. Commiter les changements (`git commit -am 'Ajout de ma feature'`)
+4. Pusher la branche (`git push origin feature/ma-feature`)
+5. Créer une Pull Request
+
+## 📄 Licence
+
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+## 🆘 Support
+
+Pour les questions et le support :
+- [Créer une issue](https://github.com/andydefer/autotext-sdk/issues)
+- Documentation complète à venir
+
 ---
 
-## Enumérations
+## 📝 Notes importantes
 
-* `TextoStatus` : `PENDING`, `SUCCESS`, `FAILED`
-* `AutoTextDeviceStatus` : `ONLINE`, `OFFLINE`
-* `FcmActionType` : `SEND_SMS`, `INFO`, `PING`, `CONFIRM_SMS`
-
----
-
-## Contribuer
-
-1. Fork le repository
-2. Crée ta branche : `git checkout -b feature/ma-fonctionnalite`
-3. Commit tes changements : `git commit -am 'Ajout de ...'`
-4. Push la branche : `git push origin feature/ma-fonctionnalite`
-5. Ouvre une Pull Request
-
----
-
-## Licence
-
-MIT
----
+- Toutes les dates sont gérées en format ISO8601
+- La bibliothèque est agnostique et peut être utilisée avec n'importe quel framework PHP
+- Les DTOs sont immutables et type-safe
+- L'interface `HttpClientInterface` permet de changer l'implémentation HTTP si nécessaire
+- Les tokens FCM doivent être valides et à jour
+- Le service Firebase nécessite une connexion internet active

@@ -5,7 +5,7 @@
 
     <testsuites>
         <testsuite name="Autotext SDK Tests">
-            <directory>tests/Unit</directory>
+            <directory>tests</directory>
         </testsuite>
     </testsuites>
 
