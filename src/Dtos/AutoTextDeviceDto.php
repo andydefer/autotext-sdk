@@ -7,7 +7,7 @@ use Andydefer\AutotextSdk\Enums\AutoTextDeviceStatus;
 class AutoTextDeviceDto
 {
     public function __construct(
-        public string $id,
+        public string $id, // uuid
         public string $apiKey,
         public AutoTextDeviceStatus $status,
         public ?string $fcmId,

@@ -1,6 +1,6 @@
 <?php
 
-namespace Andydefer\AutotextSdk\Services\Contracts;
+namespace Andydefer\AutotextSdk\Contracts;
 
 interface HttpClientInterface
 {

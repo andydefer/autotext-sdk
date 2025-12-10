@@ -32,4 +32,12 @@ class FcmMessageDto
             'timestamp' => (string) $this->timestamp,
         ];
     }
+
+    /**
+     * Transforme le DTO en JSON string
+     */
+    public function toString(): string
+    {
+        return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
+    }
 }
