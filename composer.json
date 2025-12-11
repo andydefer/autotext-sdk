@@ -1,23 +1,23 @@
 {
-    "name": "andydefer/autotext-sdk",
-    "type": "library",
-    "license": "MIT",
+    "authors": [
+        {
+            "email": "andykanidimbu@gmail.com",
+            "name": "Andy Kani"
+        }
+    ],
     "autoload": {
         "psr-4": {
             "Andydefer\\AutotextSdk\\": "src/"
         }
     },
-    "authors": [
-        {
-            "name": "Andy Kani",
-            "email": "andykanidimbu@gmail.com"
-        }
-    ],
+    "license": "MIT",
+    "name": "andydefer/autotext-sdk",
     "require": {
         "guzzlehttp/guzzle": "^7.10"
     },
     "require-dev": {
         "phpunit/phpunit": "^10",
         "symfony/var-dumper": "^7.4"
-    }
+    },
+    "type": "library"
 }

@@ -80,9 +80,9 @@ $factory = new NotificationFactory(
 
 ```php
 use Andydefer\AutotextSdk\Dtos\TextoDto;
-use Andydefer\AutotextSdk\Dtos\AutoTextDeviceDto;
+use Andydefer\AutotextSdk\Dtos\DeviceDto;
 use Andydefer\AutotextSdk\Enums\TextoStatus;
-use Andydefer\AutotextSdk\Enums\AutoTextDeviceStatus;
+use Andydefer\AutotextSdk\Enums\DeviceStatus;
 
 // 1. Créer un DTO pour le texto
 $texto = new TextoDto(
@@ -99,10 +99,10 @@ $texto = new TextoDto(
 );
 
 // 2. Créer un DTO pour l'appareil
-$device = AutoTextDeviceDto::fromArray([
+$device = DeviceDto::fromArray([
     'id' => 'device-uuid-123',
     'api_key' => 'api-key-123',
-    'status' => AutoTextDeviceStatus::ONLINE->value,
+    'status' => DeviceStatus::ONLINE->value,
     'fcm_id' => 'fcm-token-abc123',
     'last_connected_at' => '2025-12-10T13:45:30+00:00',
     'last_action_at' => '2025-12-10T13:45:30+00:00',
@@ -168,13 +168,13 @@ Représente un texto à envoyer.
 - `fromArray(array $data): self` - Crée un DTO depuis un tableau
 - `toArray(): array` - Convertit en tableau
 
-#### `AutoTextDeviceDto`
+#### `DeviceDto`
 Représente un appareil Android.
 
 **Propriétés:**
 - `id` (string): UUID de l'appareil
 - `apiKey` (string): Clé API
-- `status` (AutoTextDeviceStatus): Statut de l'appareil
+- `status` (DeviceStatus): Statut de l'appareil
 - `fcmId` (string|null): Token FCM
 - `lastConnectedAt` (string|null): Dernière connexion (ISO8601)
 - `lastActionAt` (string|null): Dernière action (ISO8601)
@@ -194,7 +194,7 @@ Représente un message FCM.
 
 ### Enums
 
-#### `AutoTextDeviceStatus`
+#### `DeviceStatus`
 - `ONLINE` - Appareil en ligne
 - `OFFLINE` - Appareil hors ligne
 - `ERROR` - Appareil en erreur
@@ -224,7 +224,7 @@ Factory centrale pour créer tous les services.
 Dispatch les SMS vers les appareils appropriés.
 
 **Méthodes:**
-- `dispatch(TextoDto $texto, AutoTextDeviceDto $device): bool`
+- `dispatch(TextoDto $texto, DeviceDto $device): bool`
 
 #### `FirebaseService`
 Service Firebase pour l'envoi via FCM.
@@ -248,9 +248,9 @@ src/
 │   ├── TextoDto.php
 │   ├── HttpResponseDto.php
 │   ├── FcmMessageDto.php
-│   └── AutoTextDeviceDto.php
+│   └── DeviceDto.php
 ├── Enums/                  # Énumérations
-│   ├── AutoTextDeviceStatus.php
+│   ├── DeviceStatus.php
 │   ├── FcmActionType.php
 │   └── TextoStatus.php
 └── Services/              # Services implémentés

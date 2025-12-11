@@ -2,14 +2,14 @@
 
 namespace Andydefer\AutotextSdk\Dtos;
 
-use Andydefer\AutotextSdk\Enums\AutoTextDeviceStatus;
+use Andydefer\AutotextSdk\Enums\DeviceStatus;
 
-class AutoTextDeviceDto
+class DeviceDto
 {
     public function __construct(
         public string $id, // uuid
         public string $apiKey,
-        public AutoTextDeviceStatus $status,
+        public DeviceStatus $status,
         public ?string $fcmId,
         public ?string $lastConnectedAt, // ISO8601 string or null. Example: "2025-12-10T13:45:30+00:00"
         public ?string $lastActionAt,    // ISO8601 string or null
@@ -31,7 +31,7 @@ class AutoTextDeviceDto
         return new self(
             id: (string) $data['id'],
             apiKey: (string) $data['api_key'],
-            status: AutoTextDeviceStatus::from($data['status']),
+            status: DeviceStatus::from($data['status']),
             fcmId: $data['fcm_id'] ?? null,
             lastConnectedAt: $data['last_connected_at'] ?? null, // ISO8601 or null
             lastActionAt: $data['last_action_at'] ?? null,       // ISO8601 or null

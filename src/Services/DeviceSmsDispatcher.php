@@ -3,8 +3,8 @@
 namespace Andydefer\AutotextSdk\Services;
 
 use Andydefer\AutotextSdk\Dtos\TextoDto;
-use Andydefer\AutotextSdk\Dtos\AutoTextDeviceDto;
-use Andydefer\AutotextSdk\Enums\AutoTextDeviceStatus;
+use Andydefer\AutotextSdk\Dtos\DeviceDto;
+use Andydefer\AutotextSdk\Enums\DeviceStatus;
 use Andydefer\AutotextSdk\Contracts\SmsSenderInterface;
 
 class DeviceSmsDispatcher
@@ -16,9 +16,9 @@ class DeviceSmsDispatcher
         $this->sender = $sender;
     }
 
-    public function dispatch(TextoDto $texto, AutoTextDeviceDto $device): bool
+    public function dispatch(TextoDto $texto, DeviceDto $device): bool
     {
-        if ($device->status !== AutoTextDeviceStatus::ONLINE) {
+        if ($device->status !== DeviceStatus::ONLINE) {
             throw new \InvalidArgumentException("Device {$device->id} is not online.");
         }
 

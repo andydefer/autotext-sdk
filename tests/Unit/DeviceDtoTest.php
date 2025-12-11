@@ -3,17 +3,17 @@
 namespace Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
-use Andydefer\AutotextSdk\Dtos\AutoTextDeviceDto;
-use Andydefer\AutotextSdk\Enums\AutoTextDeviceStatus;
+use Andydefer\AutotextSdk\Dtos\DeviceDto;
+use Andydefer\AutotextSdk\Enums\DeviceStatus;
 
-class AutoTextDeviceDtoTest extends TestCase
+class DeviceDtoTest extends TestCase
 {
-    public function testAutoTextDeviceDtoCanBeCreated(): void
+    public function testDeviceDtoCanBeCreated(): void
     {
-        $device = new AutoTextDeviceDto(
+        $device = new DeviceDto(
             id: 'device-1',
             apiKey: 'api-123',
-            status: AutoTextDeviceStatus::ONLINE,
+            status: DeviceStatus::ONLINE,
             fcmId: 'fcm-abc',
             lastConnectedAt: date('c'),
             lastActionAt: date('c'),

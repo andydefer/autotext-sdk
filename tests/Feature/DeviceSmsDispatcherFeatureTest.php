@@ -4,11 +4,11 @@ namespace Tests\Feature;
 
 use PHPUnit\Framework\TestCase;
 use Andydefer\AutotextSdk\Dtos\TextoDto;
-use Andydefer\AutotextSdk\Dtos\AutoTextDeviceDto;
+use Andydefer\AutotextSdk\Dtos\DeviceDto;
 use Andydefer\AutotextSdk\Enums\TextoStatus;
-use Andydefer\AutotextSdk\Enums\AutoTextDeviceStatus;
 use Andydefer\AutotextSdk\Services\DeviceSmsDispatcher;
 use Andydefer\AutotextSdk\Contracts\SmsSenderInterface;
+use Andydefer\AutotextSdk\Enums\DeviceStatus;
 
 class DeviceSmsDispatcherFeatureTest extends TestCase
 {
@@ -35,10 +35,10 @@ class DeviceSmsDispatcherFeatureTest extends TestCase
             updatedAt: date('c')
         );
 
-        $device = new AutoTextDeviceDto(
+        $device = new DeviceDto(
             id: 'device-1',
             apiKey: 'api-123',
-            status: AutoTextDeviceStatus::ONLINE,
+            status: DeviceStatus::ONLINE,
             fcmId: 'fcm-token-123',
             lastConnectedAt: date('c'),
             lastActionAt: date('c'),
@@ -69,10 +69,10 @@ class DeviceSmsDispatcherFeatureTest extends TestCase
             updatedAt: date('c')
         );
 
-        $device = new AutoTextDeviceDto(
+        $device = new DeviceDto(
             id: 'device-2',
             apiKey: 'api-456',
-            status: AutoTextDeviceStatus::OFFLINE,
+            status: DeviceStatus::OFFLINE,
             fcmId: 'fcm-token-456',
             lastConnectedAt: date('c'),
             lastActionAt: date('c'),
@@ -102,10 +102,10 @@ class DeviceSmsDispatcherFeatureTest extends TestCase
             updatedAt: date('c')
         );
 
-        $device = new AutoTextDeviceDto(
+        $device = new DeviceDto(
             id: 'device-3',
             apiKey: 'api-789',
-            status: AutoTextDeviceStatus::ONLINE,
+            status: DeviceStatus::ONLINE,
             fcmId: null,
             lastConnectedAt: date('c'),
             lastActionAt: date('c'),
@@ -127,10 +127,10 @@ class DeviceSmsDispatcherFeatureTest extends TestCase
 
         $dispatcher = new DeviceSmsDispatcher($senderMock);
 
-        $device = new AutoTextDeviceDto(
+        $device = new DeviceDto(
             id: 'device-4',
             apiKey: 'api-000',
-            status: AutoTextDeviceStatus::ONLINE,
+            status: DeviceStatus::ONLINE,
             fcmId: 'fcm-token-000',
             lastConnectedAt: date('c'),
             lastActionAt: date('c'),
